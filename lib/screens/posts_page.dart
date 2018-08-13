@@ -5,6 +5,7 @@ import 'package:polandball/screens/post_detail_page.dart';
 
 class PostsPage extends StatefulWidget {
   static final PATH = "/posts";
+
   @override
   _PostsPageState createState() => _PostsPageState();
 }
@@ -36,9 +37,18 @@ class _PostsPageState extends State<PostsPage> {
                         crossAxisCount: 2,
                         children: List.generate(posts.length, (index) {
                           var post = posts[index];
-                          return _generateImage(post.data.title,
-                              post.data.thumbnail, post.data.url);
+                          return _generateImage(
+                              post.data.id,
+                              post.data.title,
+                              post.data.preview.images.first.source.url,
+                              post.data.url);
                         }));
+                  } else if (snapshot.hasError) {
+                    print(snapshot.error);
+                    return Container(
+                        child: Center(
+                            child: IconButton(
+                                icon: Icon(Icons.refresh), onPressed: () {})));
                   }
                   return Container(
                     child: Center(
@@ -48,17 +58,47 @@ class _PostsPageState extends State<PostsPage> {
                 })));
   }
 
-  Widget _generateImage(String title, String thumbnailUrl, String imageUrl) {
-    return InkWell(
-      child: GridTile(
-        child: Image.network(thumbnailUrl, fit: BoxFit.cover),
-        footer: GridTileBar(
-          backgroundColor: Colors.black45,
-          title: Text(title),
-        ),
-      ),
-      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => new PostDetailPage(imageUrl: imageUrl))),
+  Widget _generateImage(
+      String id, String title, String thumbnailUrl, String imageUrl) {
+    var photoTag = PHOTO_DETAIL_HERO_TAG + id;
+    return FutureBuilder(
+      future: api.getImageBytes(thumbnailUrl),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return InkWell(
+            child: GridTile(
+              child: Hero(
+                  tag: PHOTO_DETAIL_HERO_TAG + id,
+                  child: Image.memory(
+                    snapshot.data,
+                    fit: BoxFit.cover,
+                    gaplessPlayback: true,
+                  )),
+              footer: GridTileBar(
+                backgroundColor: Colors.black45,
+                title: Text(title),
+              ),
+            ),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => new PostDetailPage(
+                    imageUrl: imageUrl,
+                    thumbnailImage: thumbnailUrl,
+                    photoDetailTag: photoTag))),
+          );
+        } else if (snapshot.hasError) {
+          print(snapshot.error);
+          return Container(
+            child: Center(
+              child: IconButton(icon: Icon(Icons.refresh), onPressed: () {}),
+            ),
+          );
+        }
+        return Container(
+          child: Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+      },
     );
   }
 }

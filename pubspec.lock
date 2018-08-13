@@ -4,10 +4,19 @@ packages:
   advanced_share:
     dependency: "direct main"
     description:
-      name: advanced_share
+      path: "."
+      ref: HEAD
+      resolved-ref: c509fa68ab6dca0b46c18402e218f2f54c30e28a
+      url: "git://github.com/blackmenthor/Flutter-Advanced-Share.git"
+    source: git
+    version: "0.1.0"
+  after_layout:
+    dependency: transitive
+    description:
+      name: after_layout
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.0"
+    version: "1.0.4"
   analyzer:
     dependency: transitive
     description:
@@ -217,9 +226,11 @@ packages:
   photo_view:
     dependency: "direct main"
     description:
-      name: photo_view
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "94d79220f0bf5bc5715e59b9718415f4ae21816d"
+      url: "git://github.com/renancaraujo/photo_view.git"
+    source: git
     version: "0.0.4"
   plugin:
     dependency: transitive

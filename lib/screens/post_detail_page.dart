@@ -2,20 +2,23 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
-//import 'package:polandball/components/photo_view.dart';
 import 'package:photo_view/photo_view.dart';
 import 'dart:typed_data';
 import 'dart:convert';
 import 'package:advanced_share/advanced_share.dart';
+import 'package:polandball/api.dart';
 
 const APPBAR_COLOR = Color.fromARGB(120, 0, 0, 0);
+const PHOTO_DETAIL_HERO_TAG = "PHOTO_DETAIL_HERO_TAG";
 
 class PostDetailPage extends StatefulWidget {
   final int page;
   final String imageUrl;
+  final String thumbnailImage;
+  final String photoDetailTag;
 
-  PostDetailPage({this.page, this.imageUrl});
+  PostDetailPage(
+      {this.page, this.imageUrl, this.thumbnailImage, this.photoDetailTag});
 
   @override
   _PostDetailPageState createState() => _PostDetailPageState();
@@ -25,6 +28,13 @@ class _PostDetailPageState extends State<PostDetailPage> {
   var _visibleAppBar = true;
   Uint8List _imageBytes;
   var _base64Image = "";
+  RedditApi api;
+
+  @override
+  void initState() {
+    super.initState();
+    api = RedditApi();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,11 +50,28 @@ class _PostDetailPageState extends State<PostDetailPage> {
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return PhotoView(
-                    imageProvider: NetworkImage(widget.imageUrl),
+                    imageProvider: MemoryImage(_imageBytes),
                     loadingChild: CircularProgressIndicator(),
+                    minScale: 0.0,
+                    gaplessPlayback: true,
                   );
                 }
-                return CircularProgressIndicator();
+                return Container(
+                  color: Colors.black,
+                  child: Center(
+                    child: Stack(
+                        alignment: AlignmentDirectional.center,
+                        children: <Widget>[
+                          Hero(
+                              tag: widget.photoDetailTag,
+                              child: Image.network(
+                                widget.thumbnailImage,
+                                fit: BoxFit.cover,
+                              )),
+                          CircularProgressIndicator()
+                        ]),
+                  ),
+                );
               },
             ))),
           ),
@@ -67,15 +94,15 @@ class _PostDetailPageState extends State<PostDetailPage> {
     );
   }
 
-  Future<http.Response> _loadImage() =>
-      http.get(widget.imageUrl).then((response) {
-        setState(() => _setRawImage(response));
-        return response;
+  Future<Uint8List> _loadImage() =>
+      api.getImageBytes(widget.imageUrl).then((bytes) {
+        setState(() => _setRawImage(bytes));
+        return bytes;
       });
 
-  _setRawImage(http.Response rawImage) {
-    this._imageBytes = rawImage.bodyBytes;
-    this._base64Image = base64Encode(rawImage.bodyBytes);
+  _setRawImage(Uint8List bytes) {
+    this._imageBytes = bytes;
+    this._base64Image = base64Encode(bytes);
   }
 
   _hideAppBarAndStatusBar() {
@@ -89,5 +116,11 @@ class _PostDetailPageState extends State<PostDetailPage> {
   _shareImage() {
     var imageToShare = "data:image/png;base64,$_base64Image";
     AdvancedShare.generic(url: imageToShare);
+  }
+
+  @override
+  void dispose() {
+    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+    super.dispose();
   }
 }

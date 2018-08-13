@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:polandball/models/models.dart';
+import 'dart:typed_data';
 
 class RedditApi {
   final REDDIT_API = "https://www.reddit.com/";
@@ -14,5 +15,10 @@ class RedditApi {
       var redditResponse = RedditResponse.fromJson(responseBodyMap);
       return redditResponse.data.children;
     });
+  }
+
+  Future<Uint8List> getImageBytes(String url) async {
+    var response = await http.get(url);
+    return response.bodyBytes;
   }
 }
