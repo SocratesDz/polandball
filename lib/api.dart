@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:polandball/models/models.dart';
 import 'dart:typed_data';
+
+import 'package:polandball/models/models.dart';
+import 'package:http/http.dart' as http;
 
 class RedditApi {
   final REDDIT_API = "https://www.reddit.com/";

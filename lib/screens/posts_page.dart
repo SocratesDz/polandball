@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:polandball/api.dart';
 import 'package:polandball/models/models.dart';
 import 'package:polandball/screens/post_detail_page.dart';
+import 'package:flutter/material.dart';
 
 class PostsPage extends StatefulWidget {
   static final PATH = "/posts";

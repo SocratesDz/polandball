@@ -1,12 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
 
+import 'package:polandball/api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:photo_view/photo_view.dart';
-import 'dart:typed_data';
-import 'dart:convert';
-import 'package:advanced_share/advanced_share.dart';
-import 'package:polandball/api.dart';
+import 'package:share_extend/share_extend.dart';
 
 const APPBAR_COLOR = Color.fromARGB(120, 0, 0, 0);
 const PHOTO_DETAIL_HERO_TAG = "PHOTO_DETAIL_HERO_TAG";
@@ -52,7 +52,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
                   return PhotoView(
                     imageProvider: MemoryImage(_imageBytes),
                     loadingChild: CircularProgressIndicator(),
-                    minScale: 0.0,
+                    basePosition: Alignment.topCenter,
+                    initialScale: 0.7,
                     gaplessPlayback: true,
                   );
                 }
@@ -115,7 +116,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   _shareImage() {
     var imageToShare = "data:image/png;base64,$_base64Image";
-    AdvancedShare.generic(url: imageToShare);
+    ShareExtend.share(imageToShare, "text");
   }
 
   @override
