@@ -2,6 +2,8 @@
   <library name="Flutter Plugins" type="FlutterPluginsLibraryType">
     <CLASSES>
       <root url="file:///opt/flutter/.pub-cache/hosted/pub.dartlang.org/share_extend-1.0.8" />
+      <root url="file:///opt/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-0.5.0+1" />
+      <root url="file:///opt/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-1.1.5" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

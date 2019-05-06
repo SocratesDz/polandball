@@ -1,11 +1,12 @@
 import 'dart:async';
-import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:polandball/api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:polandball/data/repositories/api.dart';
 import 'package:share_extend/share_extend.dart';
 
 const APPBAR_COLOR = Color.fromARGB(120, 0, 0, 0);
@@ -27,7 +28,6 @@ class PostDetailPage extends StatefulWidget {
 class _PostDetailPageState extends State<PostDetailPage> {
   var _visibleAppBar = true;
   Uint8List _imageBytes;
-  var _base64Image = "";
   RedditApi api;
 
   @override
@@ -103,7 +103,6 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   _setRawImage(Uint8List bytes) {
     this._imageBytes = bytes;
-    this._base64Image = base64Encode(bytes);
   }
 
   _hideAppBarAndStatusBar() {
@@ -114,9 +113,12 @@ class _PostDetailPageState extends State<PostDetailPage> {
     });
   }
 
-  _shareImage() {
-    var imageToShare = "data:image/png;base64,$_base64Image";
-    ShareExtend.share(imageToShare, "text");
+  _shareImage() async {
+    Directory tempDir = await getTemporaryDirectory();
+    final filename = '${tempDir.path}/temp_image_share.png';
+    File(filename).writeAsBytes(_imageBytes).then((file) {
+      ShareExtend.share(file.path, "image");
+    });
   }
 
   @override
