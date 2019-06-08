@@ -13,11 +13,34 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   PostState get initialState => UninitializedPostState();
 
   @override
-  Stream<PostState> mapEventToState(PostEvent event,) async* {
+  Stream<PostState> mapEventToState(
+    PostEvent event,
+  ) async* {
     if (event is Fetch) {
       try {
-        final posts = await api.getPosts();
-        yield LoadedPostState(posts: posts);
+        if (currentState is UninitializedPostState) {
+          final postsData = await api.getPostsData();
+          yield LoadedPostState(
+              posts: postsData.children,
+              after: postsData.after,
+              before: postsData.before);
+          return;
+        }
+        if (currentState is LoadedPostState) {
+          final currentPostDataState = currentState as LoadedPostState;
+          if (currentPostDataState == null) {
+            yield currentState;
+            return;
+          }
+          final postsData = await api.getPostsData(
+              after: currentPostDataState.after,
+              before: currentPostDataState.before);
+          yield currentPostDataState.copyWith(
+              posts: currentPostDataState.posts + postsData.children,
+              after: postsData.after,
+              before: postsData.before);
+          return;
+        }
       } catch (ex) {
         debugPrint(ex);
         yield ErrorPostState();

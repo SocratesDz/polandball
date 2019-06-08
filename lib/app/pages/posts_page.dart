@@ -14,11 +14,14 @@ class PostsPage extends StatefulWidget {
 
 class _PostsPageState extends State<PostsPage> {
   final _bloc = PostBloc(api: RedditApi());
+  final _scrollController = ScrollController();
+  final _scrollThreshold = 200.0;
 
   @override
   void initState() {
     super.initState();
     _bloc.dispatch(Fetch());
+    _scrollController.addListener(_onScroll);
   }
 
   @override
@@ -43,14 +46,12 @@ class _PostsPageState extends State<PostsPage> {
                     posts =
                         posts.where((p) => p.data.postHint == "image").toList();
                     return GridView.count(
+                        controller: _scrollController,
                         crossAxisCount: 2,
                         children: List.generate(posts.length, (index) {
                           var post = posts[index];
-                          return _generateImage(
-                              post.data.id,
-                              post.data.title,
-                              post.data.thumbnail,
-                              post.data.url);
+                          return _generateImage(post.data.id, post.data.title,
+                              post.data.thumbnail, post.data.url);
                         }));
                   } else if (state is ErrorPostState) {
                     return Container(
@@ -100,5 +101,19 @@ class _PostsPageState extends State<PostsPage> {
                 imageUrl: imageUrl,
                 thumbnailImage: thumbnailUrl,
                 photoDetailTag: photoTag))));
+  }
+
+  void _onScroll() {
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+    if (maxScroll - currentScroll <= _scrollThreshold) {
+      _bloc.dispatch(Fetch());
+    }
+  }
+
+  @override
+  void dispose() {
+    _bloc.dispose();
+    super.dispose();
   }
 }

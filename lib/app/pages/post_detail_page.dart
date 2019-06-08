@@ -40,82 +40,78 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    //return _buildAlternateLayout();
     return Scaffold(
-      body: Stack(
-        children: [
-          Column(
-            children: <Widget>[
-              Expanded(
-                child: GestureDetector(
-                  onTap: _hideAppBarAndStatusBar,
-                  child: Container(
-                      child: FutureBuilder(
-                    future: _loadImage(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return PhotoView.customChild(
-                            child: Image(
-                              image: MemoryImage(_imageBytes),
-                              gaplessPlayback: true,
-                              alignment: Alignment.topCenter,
-                              fit: BoxFit.contain,
-                            ),
-                            childSize: const Size(220.0, 250.0),
-                            basePosition: Alignment.center,
-                            initialScale: PhotoViewComputedScale.contained,
-                            minScale: PhotoViewComputedScale.contained,
-                            maxScale: PhotoViewComputedScale.covered * 5.0);
-                      }
-                      return Container(
-                        color: Colors.black,
-                        child: Center(
-                          child: Stack(
-                              alignment: AlignmentDirectional.center,
-                              children: <Widget>[
-                                Column(
-                                  children: [
-                                    Expanded(
-                                      child: Hero(
-                                          tag: widget.photoDetailTag,
-                                          child: CachedNetworkImage(
-                                            imageUrl: widget.thumbnailImage,
-                                            fit: BoxFit.contain,
-                                          )),
-                                    )
-                                  ],
-                                ),
-                                BackdropFilter(
-                                    filter: ImageFilter.blur(
-                                        sigmaX: 5.0, sigmaY: 5.0),
-                                    child: Column(
-                                      children: <Widget>[
-                                        Expanded(
-                                          child: Container(
-                                              color:
-                                                  Colors.black.withOpacity(0),
-                                              child: Center(
-                                                  child:
-                                                      CircularProgressIndicator())),
-                                        ),
-                                      ],
-                                    ))
-                              ]),
+      body: GestureDetector(
+        onTap: _hideAppBarAndStatusBar,
+        behavior: HitTestBehavior.translucent,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Container(
+                  child: FutureBuilder(
+                future: _loadImage(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return PhotoView.customChild(
+                        onTapDown: (_, __, ___) {
+                          _hideAppBarAndStatusBar();
+                        },
+                        child: Image(
+                          image: MemoryImage(_imageBytes),
+                          gaplessPlayback: true,
+                          alignment: Alignment.topCenter,
+                          fit: BoxFit.contain,
                         ),
-                      );
-                    },
-                  )),
-                ),
-              ),
-            ],
-          ),
-          Positioned(
-            left: 0.0,
-            right: 0.0,
-            top: 0.0,
-            child: AnimatedOpacity(
-              duration: Duration(milliseconds: 100),
-              opacity: _visibleAppBar ? 1.0 : 0.0,
+                        childSize: const Size(220.0, 250.0),
+                        basePosition: Alignment.center,
+                        initialScale: PhotoViewComputedScale.contained,
+                        minScale: PhotoViewComputedScale.contained,
+                        maxScale: PhotoViewComputedScale.covered * 5.0);
+                  }
+                  return Container(
+                    color: Colors.black,
+                    child: Center(
+                      child: Stack(
+                          alignment: AlignmentDirectional.center,
+                          children: <Widget>[
+                            Column(
+                              children: [
+                                Expanded(
+                                  child: Hero(
+                                      tag: widget.photoDetailTag,
+                                      child: CachedNetworkImage(
+                                        imageUrl: widget.thumbnailImage,
+                                        fit: BoxFit.contain,
+                                      )),
+                                )
+                              ],
+                            ),
+                            BackdropFilter(
+                                filter:
+                                    ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                                child: Column(
+                                  children: <Widget>[
+                                    Expanded(
+                                      child: Container(
+                                          color: Colors.black.withOpacity(0),
+                                          child: Center(
+                                              child:
+                                                  CircularProgressIndicator())),
+                                    ),
+                                  ],
+                                ))
+                          ]),
+                    ),
+                  );
+                },
+              )),
+            ),
+            AnimatedPositioned(
+              left: 0.0,
+              right: 0.0,
+              top: _visibleAppBar ? 0.0 : -80.0,
+              duration: Duration(milliseconds: 300),
+              curve: Curves.easeOut,
               child: AppBar(
                 backgroundColor: APPBAR_COLOR,
                 elevation: 0.0,
@@ -124,52 +120,6 @@ class _PostDetailPageState extends State<PostDetailPage> {
                   IconButton(icon: Icon(Icons.share), onPressed: _shareImage)
                 ],
               ),
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAlternateLayout() {
-    return Scaffold(
-      appBar: AppBar(
-        primary: true,
-        actions: <Widget>[
-          IconButton(icon: Icon(Icons.share), onPressed: _shareImage)
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            FutureBuilder(
-              future: _loadImage(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return Image(
-                    image: MemoryImage(_imageBytes),
-                    gaplessPlayback: true,
-                    alignment: Alignment.topCenter,
-                    fit: BoxFit.contain,
-                  );
-                }
-                return Container(
-                  color: Colors.black,
-                  child: Center(
-                    child: Stack(
-                        alignment: AlignmentDirectional.center,
-                        children: <Widget>[
-                          Hero(
-                              tag: widget.photoDetailTag,
-                              child: Image.network(
-                                widget.thumbnailImage,
-                                fit: BoxFit.cover,
-                              )),
-                          CircularProgressIndicator()
-                        ]),
-                  ),
-                );
-              },
             )
           ],
         ),

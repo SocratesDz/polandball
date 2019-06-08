@@ -11,11 +11,17 @@ class UninitializedPostState extends PostState {}
 
 class LoadedPostState extends PostState {
   final List<Post> posts;
+  final String after;
+  final String before;
 
-  LoadedPostState({this.posts}) : super([posts]);
+  LoadedPostState({this.posts, this.after, this.before})
+      : super([posts, after, before]);
 
-  LoadedPostState copyWith({List<Post> posts}) {
-    return LoadedPostState(posts: posts ?? this.posts);
+  LoadedPostState copyWith({List<Post> posts, String after, String before}) {
+    return LoadedPostState(
+        posts: posts ?? this.posts,
+        after: after ?? this.after,
+        before: before ?? this.before);
   }
 
   @override
