@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:polandball/screens/posts_page.dart';
+import 'package:polandball/app/pages/posts_page.dart';
 
 void main() => runApp(new App());
 
