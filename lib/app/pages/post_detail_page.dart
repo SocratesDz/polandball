@@ -1,14 +1,10 @@
-import 'dart:async';
-import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:polandball/data/repositories/api.dart';
 import 'package:share_extend/share_extend.dart';
 
 const APPBAR_COLOR = Color.fromARGB(120, 0, 0, 0);
@@ -28,116 +24,56 @@ class PostDetailPage extends StatefulWidget {
 }
 
 class _PostDetailPageState extends State<PostDetailPage> {
-  var _visibleAppBar = true;
-  Uint8List _imageBytes;
-  RedditApi api;
+  bool _visibleAppBar;
+  BaseCacheManager _cacheManager;
 
   @override
   void initState() {
     super.initState();
-    api = RedditApi();
+    _visibleAppBar = true;
+    _cacheManager = DefaultCacheManager();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GestureDetector(
-        onTap: _hideAppBarAndStatusBar,
-        behavior: HitTestBehavior.translucent,
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: Container(
-                  child: FutureBuilder(
-                future: _loadImage(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return PhotoView.customChild(
-                        onTapDown: (_, __, ___) {
-                          _hideAppBarAndStatusBar();
-                        },
-                        child: Image(
-                          image: MemoryImage(_imageBytes),
-                          gaplessPlayback: true,
-                          alignment: Alignment.topCenter,
-                          fit: BoxFit.contain,
-                        ),
-                        childSize: const Size(220.0, 250.0),
-                        basePosition: Alignment.center,
-                        initialScale: PhotoViewComputedScale.contained,
-                        minScale: PhotoViewComputedScale.contained,
-                        maxScale: PhotoViewComputedScale.covered * 5.0);
-                  }
-                  return Container(
-                    color: Colors.black,
-                    child: Center(
-                      child: Stack(
-                          alignment: AlignmentDirectional.center,
-                          children: <Widget>[
-                            Column(
-                              children: [
-                                Expanded(
-                                  child: Hero(
-                                      tag: widget.photoDetailTag,
-                                      child: CachedNetworkImage(
-                                        imageUrl: widget.thumbnailImage,
-                                        fit: BoxFit.contain,
-                                      )),
-                                )
-                              ],
-                            ),
-                            BackdropFilter(
-                                filter:
-                                    ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                                child: Column(
-                                  children: <Widget>[
-                                    Expanded(
-                                      child: Container(
-                                          color: Colors.black.withOpacity(0),
-                                          child: Center(
-                                              child:
-                                                  CircularProgressIndicator())),
-                                    ),
-                                  ],
-                                ))
-                          ]),
-                    ),
-                  );
-                },
-              )),
+      body: Stack(
+        children: [
+          Container(
+            color: Colors.black,
+            child: PhotoView(
+              basePosition: Alignment.topCenter,
+              gaplessPlayback: true,
+              initialScale: PhotoViewComputedScale.covered,
+              minScale: PhotoViewComputedScale.covered,
+              heroTag: widget.photoDetailTag,
+              imageProvider: CachedNetworkImageProvider(widget.imageUrl,
+                  cacheManager: _cacheManager),
+              onTapUp: (_, __, ___) => _handleAppBar(),
+              loadingChild: _buildLoadingWidget(),
             ),
-            AnimatedPositioned(
-              left: 0.0,
-              right: 0.0,
-              top: _visibleAppBar ? 0.0 : -80.0,
-              duration: Duration(milliseconds: 300),
-              curve: Curves.easeOut,
-              child: AppBar(
-                backgroundColor: APPBAR_COLOR,
-                elevation: 0.0,
-                primary: true,
-                actions: <Widget>[
-                  IconButton(icon: Icon(Icons.share), onPressed: _shareImage)
-                ],
-              ),
-            )
-          ],
-        ),
+          ),
+          AnimatedPositioned(
+            left: 0.0,
+            right: 0.0,
+            top: _visibleAppBar ? 0.0 : -80.0,
+            duration: Duration(milliseconds: 300),
+            curve: Curves.bounceOut,
+            child: AppBar(
+              backgroundColor: APPBAR_COLOR,
+              elevation: 0.0,
+              primary: true,
+              actions: <Widget>[
+                IconButton(icon: Icon(Icons.share), onPressed: _sharePost)
+              ],
+            ),
+          )
+        ],
       ),
     );
   }
 
-  Future<Uint8List> _loadImage() =>
-      api.getImageBytes(widget.imageUrl).then((bytes) {
-        setState(() => _setRawImage(bytes));
-        return bytes;
-      });
-
-  _setRawImage(Uint8List bytes) {
-    this._imageBytes = bytes;
-  }
-
-  _hideAppBarAndStatusBar() {
+  void _handleAppBar() {
     setState(() {
       _visibleAppBar = !_visibleAppBar;
       SystemChrome.setEnabledSystemUIOverlays(
@@ -145,17 +81,51 @@ class _PostDetailPageState extends State<PostDetailPage> {
     });
   }
 
-  _shareImage() async {
-    Directory tempDir = await getTemporaryDirectory();
-    final filename = '${tempDir.path}/temp_image_share.png';
-    File(filename).writeAsBytes(_imageBytes).then((file) {
-      ShareExtend.share(file.path, "image");
-    });
+  Widget _buildLoadingWidget() {
+    return Container(
+      color: Colors.black,
+      child: Center(
+        child: Stack(alignment: AlignmentDirectional.center, children: <Widget>[
+          Column(
+            children: [
+              Expanded(
+                child: Hero(
+                    tag: widget.photoDetailTag,
+                    child: CachedNetworkImage(
+                      imageUrl: widget.thumbnailImage,
+                      fit: BoxFit.contain,
+                    )),
+              )
+            ],
+          ),
+          BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+              child: Column(
+                children: <Widget>[
+                  Expanded(
+                    child: Container(
+                        color: Colors.black.withOpacity(0),
+                        child: Center(child: CircularProgressIndicator())),
+                  ),
+                ],
+              ))
+        ]),
+      ),
+    );
   }
 
   @override
   void dispose() {
     SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     super.dispose();
+  }
+
+  void _sharePost() async {
+    final cachedPictureFileInfo =
+        await _cacheManager.getFileFromCache(widget.imageUrl);
+    if (cachedPictureFileInfo != null) {
+      final pictureFile = cachedPictureFileInfo.file;
+      ShareExtend.share(pictureFile.path, "image");
+    }
   }
 }
