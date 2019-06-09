@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:polandball/data/repositories/api.dart';
-import './bloc.dart';
+import 'package:polandball/app/blocs/post/bloc.dart';
 
 class PostBloc extends Bloc<PostEvent, PostState> {
   final RedditApi api;
