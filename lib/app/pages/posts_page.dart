@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:polandball/app/blocs/bloc.dart';
+import 'package:polandball/app/blocs/post/bloc.dart';
 import 'package:polandball/app/pages/post_detail_page.dart';
 import 'package:polandball/data/repositories/api.dart';
 
@@ -97,7 +97,7 @@ class _PostsPageState extends State<PostsPage> {
           ),
         ),
         onTap: () => Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => new PostDetailPage(
+            builder: (context) => PostDetailPage(
                 imageUrl: imageUrl,
                 thumbnailImage: thumbnailUrl,
                 photoDetailTag: photoTag))));
