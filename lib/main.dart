@@ -7,7 +7,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData.dark(),
+      theme: ThemeData(fontFamily: "Mali", primarySwatch: Colors.red),
       home: PostsPage(),
       routes: {PostsPage.PATH: (context) => PostsPage()},
     );
