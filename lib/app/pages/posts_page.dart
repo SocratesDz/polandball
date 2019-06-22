@@ -51,7 +51,7 @@ class _PostsPageState extends State<PostsPage> {
                             crossAxisCount: 2),
                         itemBuilder: (context, index) {
                           var post = posts[index];
-                          return new _GridPostImage(
+                          return _GridPostImage(
                               context: context,
                               id: post.data.id,
                               title: post.data.title,
@@ -129,9 +129,9 @@ class __GridPostImageState extends State<_GridPostImage>
             decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black, blurRadius: 0.0, spreadRadius: 0.0)
+                      color: Colors.black54, blurRadius: 0.0, spreadRadius: 0.0)
                 ],
-                border: Border.all(color: Colors.grey[200]),
+                border: Border.all(color: Colors.black54),
                 borderRadius: BorderRadius.all(Radius.circular(2.0))),
             child: InkWell(
                 child: GridTile(
@@ -142,7 +142,7 @@ class __GridPostImageState extends State<_GridPostImage>
                         imageUrl: widget.thumbnailUrl,
                         placeholder: (_, __) {
                           return Container(
-                            color: Colors.grey[200],
+                            color: Colors.white,
                             child: Center(
                               child: CircularProgressIndicator(),
                             ),
@@ -150,6 +150,7 @@ class __GridPostImageState extends State<_GridPostImage>
                         },
                         errorWidget: (_, __, ___) {
                           return Container(
+                            color: Colors.white,
                             child: Center(
                               child: IconButton(
                                   icon: Icon(Icons.error_outline),
@@ -158,14 +159,18 @@ class __GridPostImageState extends State<_GridPostImage>
                           );
                         },
                       )),
-                  footer: ClipRRect(
-                    borderRadius: BorderRadius.all(Radius.circular(2.0)),
-                    child: GridTileBar(
-                      backgroundColor: Colors.grey[200],
-                      title: Text(
-                        widget.title,
-                        style: TextStyle(
-                            color: Colors.black87, fontFamily: "Mali"),
+                  footer: ClipRect(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border(top: BorderSide(color: Colors.black54, width: 2.0))
+                      ),
+                      child: GridTileBar(
+                        backgroundColor: Colors.grey[200],
+                        title: Text(
+                          widget.title,
+                          style: TextStyle(
+                              color: Colors.black87, fontFamily: "Mali"),
+                        ),
                       ),
                     ),
                   ),
