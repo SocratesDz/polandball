@@ -7,10 +7,7 @@ import 'package:polandball/app/blocs/post/bloc.dart';
 class PostBloc extends Bloc<PostEvent, PostState> {
   final RedditApi api;
 
-  PostBloc({this.api});
-
-  @override
-  PostState get initialState => UninitializedPostState();
+  PostBloc({this.api}): super(UninitializedPostState());
 
   @override
   Stream<PostState> mapEventToState(
@@ -18,7 +15,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   ) async* {
     if (event is Fetch) {
       try {
-        if (currentState is UninitializedPostState) {
+        if (state is UninitializedPostState) {
           final postsData = await api.getPostsData();
           yield LoadedPostState(
               posts: postsData.children,
@@ -26,10 +23,10 @@ class PostBloc extends Bloc<PostEvent, PostState> {
               before: postsData.before);
           return;
         }
-        if (currentState is LoadedPostState) {
-          final currentPostDataState = currentState as LoadedPostState;
+        if (state is LoadedPostState) {
+          final currentPostDataState = state as LoadedPostState;
           if (currentPostDataState == null) {
-            yield currentState;
+            yield state;
             return;
           }
           final postsData = await api.getPostsData(

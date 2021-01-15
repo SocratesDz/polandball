@@ -20,7 +20,7 @@ class _PostsPageState extends State<PostsPage> {
   @override
   void initState() {
     super.initState();
-    _bloc.dispatch(Fetch());
+    _bloc.add(Fetch());
     _scrollController.addListener(_onScroll);
   }
 
@@ -32,7 +32,7 @@ class _PostsPageState extends State<PostsPage> {
         ),
         body: Container(
             child: BlocBuilder(
-                bloc: _bloc,
+                cubit: _bloc,
                 builder: (context, state) {
                   if (state is UninitializedPostState) {
                     return Container(
@@ -64,9 +64,10 @@ class _PostsPageState extends State<PostsPage> {
                             child: IconButton(
                                 icon: Icon(Icons.refresh),
                                 onPressed: () {
-                                  _bloc.dispatch(Fetch());
+                                  _bloc.add(Fetch());
                                 })));
                   }
+                  return Container();
                 })));
   }
 
@@ -74,13 +75,13 @@ class _PostsPageState extends State<PostsPage> {
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.position.pixels;
     if (maxScroll - currentScroll <= _scrollThreshold) {
-      _bloc.dispatch(Fetch());
+      _bloc.add(Fetch());
     }
   }
 
   @override
   void dispose() {
-    _bloc.dispose();
+    _bloc.close();
     super.dispose();
   }
 }
@@ -162,8 +163,9 @@ class __GridPostImageState extends State<_GridPostImage>
                   footer: ClipRect(
                     child: Container(
                       decoration: BoxDecoration(
-                        border: Border(top: BorderSide(color: Colors.black54, width: 2.0))
-                      ),
+                          border: Border(
+                              top: BorderSide(
+                                  color: Colors.black54, width: 2.0))),
                       child: GridTileBar(
                         backgroundColor: Colors.grey[200],
                         title: Text(

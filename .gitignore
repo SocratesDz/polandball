@@ -72,3 +72,6 @@
 
 # Hide keystore files
 *.keystore*
+
+.flutter-plugins-dependencies
+flutter_export_environment.sh
