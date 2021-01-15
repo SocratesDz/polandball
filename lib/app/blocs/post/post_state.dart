@@ -4,7 +4,10 @@ import 'package:polandball/domain/entities/models.dart';
 
 @immutable
 abstract class PostState extends Equatable {
-  PostState([List props = const []]) : super(props);
+  PostState([List props = const []]) : super();
+
+  @override
+  List<Object> get props => [];
 }
 
 class UninitializedPostState extends PostState {}
