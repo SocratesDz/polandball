@@ -46,11 +46,12 @@ class _PostDetailPageState extends State<PostDetailPage> {
               gaplessPlayback: true,
               initialScale: PhotoViewComputedScale.covered,
               minScale: PhotoViewComputedScale.covered,
-              heroTag: widget.photoDetailTag,
+              heroAttributes:
+                  PhotoViewHeroAttributes(tag: widget.photoDetailTag),
               imageProvider: CachedNetworkImageProvider(widget.imageUrl,
                   cacheManager: _cacheManager),
               onTapUp: (_, __, ___) => _handleAppBar(),
-              loadingChild: _buildLoadingWidget(),
+              loadingBuilder: (_, __) => _buildLoadingWidget(),
             ),
           ),
           AnimatedPositioned(
