@@ -28,8 +28,11 @@ class LoadedPostState extends PostState {
   }
 
   @override
+  List<Object> get props => [posts, after, before];
+
+  @override
   String toString() {
-    return 'LoadedPostState{posts: $posts}';
+    return 'LoadedPostState{posts: $posts, after: $after, before: $before}';
   }
 }
 
